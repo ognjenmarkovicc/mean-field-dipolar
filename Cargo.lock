@@ -36,6 +36,7 @@ dependencies = [
 name = "mean-field-dipolar"
 version = "0.1.0"
 dependencies = [
+ "approx",
  "nalgebra",
 ]
 
