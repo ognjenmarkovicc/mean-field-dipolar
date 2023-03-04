@@ -1,5 +1,3 @@
-#[macro_use]
-extern crate approx; // For the macro relative_eq!
 extern crate nalgebra as na;
 use na::{Vector3};
 

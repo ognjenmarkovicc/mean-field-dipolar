@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate approx; // For the macro relative_eq!
 extern crate nalgebra as na;
 use na::{Vector3};
 
@@ -13,4 +15,29 @@ pub fn get_dd_int(dist_v: Vector3<f64>, dip_v: Vector3<f64>)
         /(dist.powi(3));
 
     dd_int
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn dd_repulsive_test() {
+        let dip_v = Vector3::new(0., 0., 1.);
+        let dist_v = Vector3::new(1., 0., 0.);
+
+        let int = get_dd_int(dist_v, dip_v);
+
+        relative_eq!(int, 1.);
+    }
+
+
+    #[test]
+    fn dd_attractive_test() {
+        let dip_v = Vector3::new(1., 0., 0.);
+        let dist_v = Vector3::new(1., 0., 0.);
+
+        let int = get_dd_int(dist_v, dip_v);
+
+        relative_eq!(int, -2.);
+    }
 }
