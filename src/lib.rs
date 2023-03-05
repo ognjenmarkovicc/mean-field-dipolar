@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate approx; // For the macro relative_eq!
 extern crate nalgebra as na;
-use na::{Vector3};
+use na::{Vector3, DMatrix};
 use std::f64::consts::PI;
 
 /// Get the dipole-dipole interaction
@@ -110,6 +110,19 @@ impl <'a> From<LattPos<'a>> for SpinIdx<'a> {
         SpinIdx {idx: pos.y*pos.latt.system_size + pos.x,
                  latt: pos.latt}
     }
+}
+
+pub fn get_checkerboard(latt: &PeriodicLattice) -> DMatrix<u16> {
+    let mut mat: DMatrix<u16> = DMatrix::zeros(latt.system_size.try_into().unwrap(),
+                                    latt.system_size.try_into().unwrap());
+
+    for i in 0..latt.system_size {
+        for j in 0..latt.system_size {
+            mat[(i.try_into().unwrap(), j.try_into().unwrap())] = ((i + j)%2).try_into().unwrap();
+        }
+    }
+
+    mat
 }
 
 #[cfg(test)]

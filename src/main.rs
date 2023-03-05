@@ -1,7 +1,8 @@
 extern crate nalgebra as na;
 use na::{Vector3};
 
-use mean_field_dipolar::{get_dd_int, PeriodicLattice, SpinIdx, LattPos};
+use mean_field_dipolar::{get_dd_int, PeriodicLattice,
+    SpinIdx, LattPos, get_checkerboard};
 
 fn main() {
     let dip_v = Vector3::new(0., 0., 1.);
@@ -20,4 +21,8 @@ fn main() {
     let pos = LattPos::from(sp);
 
     println!("{:?}", pos);
+
+    let mat = get_checkerboard(&system);
+
+    println!("{:?}", mat);
 }
