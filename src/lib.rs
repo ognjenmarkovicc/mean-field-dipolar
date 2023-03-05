@@ -16,10 +16,11 @@ pub fn get_dd_int(dist_v: Vector3<f64>, dip_v: Vector3<f64>)
 
     dd_int
 }
-/// Struct that holds periodic lattice information
+/// Struct that holds periodic 2d lattice information
+#[derive(Debug)]
 pub struct PeriodicLattice 
 {
-    pub system_size: i32,
+    pub system_size: i32, // the system is a square
 }
 
 impl PeriodicLattice {
