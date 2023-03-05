@@ -36,7 +36,7 @@ impl PeriodicLattice {
     /// assert_eq!(1, system.get_idx_periodic(idx));
     /// ```
     pub fn get_idx_periodic(&self, idx: i32) -> i32 {
-        idx%self.system_size
+        idx.rem_euclid(self.system_size)
     }
 }
 
@@ -151,10 +151,17 @@ mod tests {
     }
 
     #[test]
-    fn periodic_latt_test() {
+    fn periodic_idx_pos_test() {
         let system = PeriodicLattice { system_size: 4 };
         let idx = 5;
         assert_eq!(1, system.get_idx_periodic(idx));
+    }
+
+    #[test]
+    fn periodic_idx_neg_test() {
+        let system = PeriodicLattice { system_size: 4 };
+        let idx = -1;
+        assert_eq!(3, system.get_idx_periodic(idx));
     }
 
     #[test]
