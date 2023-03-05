@@ -12,7 +12,7 @@ fn main() {
 
     println!("d-d interaction {}", interaction);
 
-    let system = PeriodicLattice { system_size: 4 };
+    let system = PeriodicLattice::new(4);
     let idx = 5;
     assert_eq!(1, system.get_idx_periodic(idx));
 

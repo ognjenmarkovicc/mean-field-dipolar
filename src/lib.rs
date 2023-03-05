@@ -2,6 +2,7 @@
 extern crate approx; // For the macro relative_eq!
 extern crate nalgebra as na;
 use na::{Vector3, DMatrix};
+use core::panic;
 use std::f64::consts::PI;
 
 /// Get the dipole-dipole interaction
@@ -21,7 +22,7 @@ pub fn get_dd_int(dist_v: Vector3<f64>, dip_v: Vector3<f64>)
 #[derive(Debug)]
 pub struct PeriodicLattice 
 {
-    pub system_size: i32, // the system is a square
+    system_size: i32, // the system is a square
 }
 
 impl PeriodicLattice {
@@ -31,12 +32,19 @@ impl PeriodicLattice {
     /// # Examples
     /// ```
     /// use mean_field_dipolar::PeriodicLattice;
-    /// let system = PeriodicLattice { system_size: 4 };
+    /// let system = PeriodicLattice::new(4);
     /// let idx = 5;
     /// assert_eq!(1, system.get_idx_periodic(idx));
     /// ```
     pub fn get_idx_periodic(&self, idx: i32) -> i32 {
         idx.rem_euclid(self.system_size)
+    }
+
+    pub fn new(system_size: i32) -> Self {
+        if system_size < 0 {
+            panic!("Given system size needs to be positive.");
+        }
+        PeriodicLattice { system_size }
     }
 }
 
@@ -118,6 +126,7 @@ pub fn get_checkerboard(latt: &PeriodicLattice) -> DMatrix<u16> {
 
     for i in 0..latt.system_size {
         for j in 0..latt.system_size {
+            // assume usize is at least u32
             mat[(i.try_into().unwrap(), j.try_into().unwrap())] = ((i + j)%2).try_into().unwrap();
         }
     }
@@ -168,7 +177,7 @@ mod tests {
     #[should_panic]
     fn latt_pos_panic_test() {
         let system = PeriodicLattice { system_size: 4 };
-        let pos = LattPos::new(6, 5, &system);
+        let _ = LattPos::new(6, 5, &system);
     }
 
     #[test]
