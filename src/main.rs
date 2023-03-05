@@ -1,8 +1,10 @@
 extern crate nalgebra as na;
 use na::{Vector3};
 
-use mean_field_dipolar::{get_dd_int, PeriodicLattice,
-    SpinIdx, LattPos, get_checkerboard};
+use mean_field_dipolar::lattice::{PeriodicLattice,
+    SpinIdx, LattPos};
+use mean_field_dipolar::dipolar::get_dd_int;
+use mean_field_dipolar::patterns::get_checkerboard;
 
 fn main() {
     let dip_v = Vector3::new(0., 0., 1.);
