@@ -2,6 +2,7 @@
 extern crate approx; // For the macro relative_eq!
 extern crate nalgebra as na;
 use na::{Vector3};
+use std::f64::consts::PI;
 
 /// Get the dipole-dipole interaction
 /// 
@@ -36,6 +37,21 @@ impl PeriodicLattice {
     /// ```
     pub fn get_idx_periodic(&self, idx: i32) -> i32 {
         idx%self.system_size
+    }
+}
+
+/// Struct holding info about the dipolar system parameters
+pub struct DipolarSystem {
+    pub theta: f64,
+    pub phi: f64,
+    pub u_onsite: f64, // onsite interaction
+}
+
+impl DipolarSystem {
+    pub fn get_dipole_vec(&self) -> Vector3<f64> {
+        Vector3::new(self.theta.sin()*self.phi.cos(),
+                     self.theta.sin()*self.phi.sin(),
+                     self.theta.cos())
     }
 }
 
@@ -152,5 +168,13 @@ mod tests {
 
         assert_eq!(pos.x, 3);
         assert_eq!(pos.y, 1);
+    }
+
+    #[test]
+    fn dipole_vec_test() {
+        let dip_system = DipolarSystem {theta: PI/2., phi: 0., u_onsite: 0.};
+        let dip_vec = dip_system.get_dipole_vec();
+
+        relative_eq!(dip_vec[0], 1.);
     }
 }
