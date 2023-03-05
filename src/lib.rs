@@ -22,7 +22,7 @@ pub fn get_dd_int(dist_v: Vector3<f64>, dip_v: Vector3<f64>)
 #[derive(Debug)]
 pub struct PeriodicLattice 
 {
-    system_size: i32, // the system is a square
+    system_size: usize, // the system is a square
 }
 
 impl PeriodicLattice {
@@ -36,14 +36,19 @@ impl PeriodicLattice {
     /// let idx = 5;
     /// assert_eq!(1, system.get_idx_periodic(idx));
     /// ```
-    pub fn get_idx_periodic(&self, idx: i32) -> i32 {
-        idx.rem_euclid(self.system_size)
+    pub fn get_idx_periodic(&self, idx: isize) -> usize {
+        // can get a negative argument
+        // convert system size into isize first and then
+        // convert the result to usize
+        (idx.rem_euclid(self.system_size.try_into().unwrap()))
+            .try_into().unwrap()
     }
 
-    pub fn new(system_size: i32) -> Self {
-        if system_size < 0 {
-            panic!("Given system size needs to be positive.");
+    pub fn new(system_size: usize) -> Self {
+        if system_size > isize::MAX.try_into().unwrap() {
+            panic!("Given system_size needs to be less than {}", isize::MAX);
         }
+
         PeriodicLattice { system_size }
     }
 }
@@ -66,8 +71,8 @@ impl DipolarSystem {
 /// Struct representing the pair of lattice positions
 #[derive(Debug)]
 pub struct LattPos<'a> {
-    x: i32, // j
-    y: i32, // i
+    x: usize, // j
+    y: usize, // i
     latt: &'a PeriodicLattice,
 }
 
@@ -76,7 +81,7 @@ impl <'a> LattPos<'a> {
     /// 
     /// Panics if the given lattice indices are not compatible with
     /// latt.system_size.
-    pub fn new(x: i32, y: i32, latt: &PeriodicLattice) -> LattPos {
+    pub fn new(x: usize, y: usize, latt: &PeriodicLattice) -> LattPos {
         if x >= latt.system_size || y >= latt.system_size || x < 0 || y < 0 {
             panic!("Given indices not compatible with the given system size.");
         }
@@ -87,7 +92,7 @@ impl <'a> LattPos<'a> {
 /// Struct representing the spin index 
 /// of a lattice site
 pub struct SpinIdx<'a> {
-    idx: i32,
+    idx: usize,
     latt: &'a PeriodicLattice,
 }
 
@@ -95,7 +100,7 @@ impl <'a> SpinIdx<'a> {
     /// Create a new spin index
     /// 
     /// Panics if the index is not compatible with the given lattice.
-    pub fn new(idx: i32, latt: &PeriodicLattice) -> SpinIdx {
+    pub fn new(idx: usize, latt: &PeriodicLattice) -> SpinIdx {
         if idx >= latt.system_size.pow(2) || idx < 0 {
             panic!("Index not compatible with the given system size");
         }
@@ -120,14 +125,14 @@ impl <'a> From<LattPos<'a>> for SpinIdx<'a> {
     }
 }
 
-pub fn get_checkerboard(latt: &PeriodicLattice) -> DMatrix<u16> {
-    let mut mat: DMatrix<u16> = DMatrix::zeros(latt.system_size.try_into().unwrap(),
-                                    latt.system_size.try_into().unwrap());
+pub fn get_checkerboard(latt: &PeriodicLattice) -> DMatrix<u8> {
+    let mut mat: DMatrix<u8> = DMatrix::zeros(latt.system_size,
+                                               latt.system_size);
 
     for i in 0..latt.system_size {
         for j in 0..latt.system_size {
             // assume usize is at least u32
-            mat[(i.try_into().unwrap(), j.try_into().unwrap())] = ((i + j)%2).try_into().unwrap();
+            mat[(i, j)] = ((i + j)%2).try_into().unwrap();
         }
     }
 
