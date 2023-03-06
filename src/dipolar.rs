@@ -1,5 +1,5 @@
 use na::{Vector3, DMatrix};
-use nalgebra::{RowDVector, DVector};
+use nalgebra::{RowDVector, DVector, ComplexField};
 
 use crate::lattice::{PeriodicLattice, SpinIdx, LattPos};
 
@@ -177,4 +177,27 @@ pub fn generate_mat_m(mu: f64, t: f64,
     }
 
     m_mat
+}
+
+/// Find smallest tunneling where the det(M)=0,
+/// where matrix M is defined in: 
+/// Trefzger et al., J. Phys. B At. Mol. Opt. Phys. 44 (2011) 193001
+/// Eq. 3.19
+pub fn get_tunneling(mu: f64, dip: &DipolarSystem, max_tunneling: f64,
+    tunneling_step:f64, det_threshold:f64) -> f64 {
+
+    let mut tunneling = 1e-2;
+
+    while tunneling < max_tunneling {
+        let m_mat = generate_mat_m(mu, tunneling, dip);
+        let det_val = m_mat.determinant();
+
+        if det_val.abs() < det_threshold {
+            return tunneling
+        }
+        tunneling += tunneling_step;
+    }
+
+    // return 0 if determinant smaller than det_threshold not found
+    0.
 }
