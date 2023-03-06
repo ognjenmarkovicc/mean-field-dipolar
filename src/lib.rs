@@ -11,6 +11,8 @@ pub mod patterns;
 
 #[cfg(test)]
 mod tests {
+    use crate::{patterns::get_checkerboard, dipolar::get_dd_int_site};
+
     use super::*;
     use dipolar::{get_dd_int, DipolarSystem};
     use lattice::{LattPos, PeriodicLattice, SpinIdx};
@@ -38,14 +40,14 @@ mod tests {
 
     #[test]
     fn periodic_idx_pos_test() {
-        let system = PeriodicLattice { system_size: 4 };
+        let system = PeriodicLattice::new(4);
         let idx = 5;
         assert_eq!(1, system.get_idx_periodic(idx));
     }
 
     #[test]
     fn periodic_idx_neg_test() {
-        let system = PeriodicLattice { system_size: 4 };
+        let system = PeriodicLattice::new(4);
         let idx = -1;
         assert_eq!(3, system.get_idx_periodic(idx));
     }
@@ -53,13 +55,13 @@ mod tests {
     #[test]
     #[should_panic]
     fn latt_pos_panic_test() {
-        let system = PeriodicLattice { system_size: 4 };
+        let system = PeriodicLattice::new(4);
         let _ = LattPos::new(6, 5, &system);
     }
 
     #[test]
     fn pos_to_spin() {
-        let system = PeriodicLattice { system_size: 4 };
+        let system = PeriodicLattice::new(4);
         let pos = LattPos::new(3, 1, &system);
         let sp = SpinIdx::from(pos);
 
@@ -68,7 +70,7 @@ mod tests {
 
     #[test]
     fn spin_to_pos() {
-        let system = PeriodicLattice { system_size: 4 };
+        let system = PeriodicLattice::new(4);
         let sp = SpinIdx::new(7, &system);
         let pos = LattPos::from(sp);
 
@@ -78,9 +80,20 @@ mod tests {
 
     #[test]
     fn dipole_vec_test() {
-        let dip_system = DipolarSystem {theta: PI/2., phi: 0., u_onsite: 0., interaction_range: 2};
+        let dip_system = DipolarSystem {theta: PI/2., phi: 0., u_onsite: 0., int_range: 2};
         let dip_vec = dip_system.get_dipole_vec();
 
         relative_eq!(dip_vec[0], 1.);
+    }
+
+    #[test]
+    fn dipole_int_test() {
+        let dip_system = DipolarSystem {theta: 0., phi: 0., u_onsite: 0., int_range: 1};
+        let system = PeriodicLattice::new(4);
+        let occupation = get_checkerboard(&system);
+
+        let interaction = get_dd_int_site(0, 0, &dip_system,
+                                          &occupation, &system);
+        assert_eq!(interaction, 4.);  
     }
 }

@@ -1,4 +1,6 @@
-use na::Vector3;
+use na::{Vector3, DMatrix};
+
+use crate::lattice::PeriodicLattice;
 
 /// Get the dipole-dipole interaction
 /// 
@@ -19,7 +21,7 @@ pub struct DipolarSystem {
     pub theta: f64,
     pub phi: f64,
     pub u_onsite: f64, // onsite interaction
-    pub interaction_range: u16,
+    pub int_range: usize,
 }
 
 impl DipolarSystem {
@@ -28,4 +30,36 @@ impl DipolarSystem {
                      self.theta.sin()*self.phi.sin(),
                      self.theta.cos())
     }
+}
+
+/// Get the dipole dipole interaction
+/// a particle would experience if added to site (y, x)
+pub fn get_dd_int_site(x: isize, y: isize,
+                       dip: &DipolarSystem,
+                       occupation: &DMatrix<u8>,
+                       latt: &PeriodicLattice) -> f64 {
+
+    let mut interaction: f64 = 0.;
+    let int_range_cast = isize::try_from(dip.int_range).unwrap();
+
+    // go over neighbors
+    for x_n in x-int_range_cast..x+int_range_cast + 1 {
+        for y_n in y-int_range_cast..y+int_range_cast + 1 {
+            // get periodic indices
+            let x_n_p = latt.get_idx_periodic(x_n);
+            let y_n_p = latt.get_idx_periodic(y_n);
+
+            let dist_vec =  Vector3::new(x as f64-x_n as f64,
+                                         y as f64 -y_n as f64,
+                                         0.);
+
+            let dist = dist_vec.norm();
+
+            if !(x_n == x && y_n == y) && dist<=dip.int_range as f64 {
+                interaction += occupation[(y_n_p, x_n_p)] as f64 * get_dd_int(dist_vec, dip.get_dipole_vec());
+            }
+        }
+    }
+
+    interaction
 }
