@@ -29,8 +29,8 @@ fn main() {
 
     println!("{:?}", mat);
 
-    let dip_system = DipolarSystem {theta: 0., phi: 0.,
-                                    u_onsite: 20., int_range: 1};
+    let dip_system = DipolarSystem::new(0., 0., 20., 1, 4);
+
     let interaction = get_dd_int_site(0, 0, &dip_system,
                                       &mat, &system);
 

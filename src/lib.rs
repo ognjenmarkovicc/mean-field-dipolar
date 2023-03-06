@@ -81,7 +81,8 @@ mod tests {
 
     #[test]
     fn dipole_vec_test() {
-        let dip_system = DipolarSystem {theta: PI/2., phi: 0., u_onsite: 0., int_range: 2};
+        let dip_system = DipolarSystem::new(PI/2., 0., 0., 2, 4);
+
         let dip_vec = dip_system.get_dipole_vec();
 
         relative_eq!(dip_vec[0], 1.);
@@ -89,7 +90,8 @@ mod tests {
 
     #[test]
     fn dipole_int_test() {
-        let dip_system = DipolarSystem {theta: 0., phi: 0., u_onsite: 0., int_range: 1};
+        let dip_system = DipolarSystem::new(0., 0., 0., 1, 4);
+
         let system = PeriodicLattice::new(4);
         let occupation = get_checkerboard(&system);
 
@@ -100,8 +102,8 @@ mod tests {
 
     #[test]
     fn m_matrix_det_test() {
-        let dip_system = DipolarSystem {theta: 0., phi: 0.,
-                                        u_onsite: 20., int_range: 1};
+        let dip_system = DipolarSystem::new(0., 0., 20., 1, 4);
+
 
         let system = PeriodicLattice::new(2);
         let occupation = get_checkerboard(&system);
@@ -113,7 +115,7 @@ mod tests {
         let m_mat = generate_mat_m(mu, t, &dip_system, &occupation,
                                    &system, &dd_mat);
         
-        // value taken from the python version of the code
+        // value taken from the python version of the
         assert_eq!(m_mat.determinant(), -0.4736842105263155);
     }
 }

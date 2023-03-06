@@ -18,11 +18,15 @@ pub fn get_dd_int(dist_v: Vector3<f64>, dip_v: Vector3<f64>)
 }
 
 /// Struct holding info about the dipolar system parameters
+#[non_exhaustive]
 pub struct DipolarSystem {
     pub theta: f64,
     pub phi: f64,
     pub u_onsite: f64, // onsite interaction
     pub int_range: usize,
+    pub latt: PeriodicLattice,
+    pub occupation: DMatrix<u8>,
+    pub dd_mat: DMatrix<f64>,
 }
 
 impl DipolarSystem {
@@ -30,6 +34,17 @@ impl DipolarSystem {
         Vector3::new(self.theta.sin()*self.phi.cos(),
                      self.theta.sin()*self.phi.sin(),
                      self.theta.cos())
+    }
+
+    pub fn new(theta: f64, phi: f64, u_onsite: f64, 
+               int_range: usize, system_size: usize
+               ) -> Self {
+
+        let latt = PeriodicLattice::new(system_size);
+
+        let occupation = DMatrix::zeros(system_size, system_size);
+        let dd_mat = DMatrix::zeros(system_size, system_size);
+        DipolarSystem { theta, phi, u_onsite, int_range, latt, occupation, dd_mat}
     }
 }
 
