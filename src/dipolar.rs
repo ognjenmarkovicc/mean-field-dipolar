@@ -115,6 +115,11 @@ pub fn get_hole_e(x: usize, y: usize, mu: f64, dip: &DipolarSystem) -> f64 {
     mu - dip.u_onsite*(dip.occupation[(y, x)] as f64 - 1.) - dip.dd_mat[(y, x)]
 }
 
+/// Generate Matrix M row from Trefzger et al., J. Phys. B At. Mol. Opt. Phys. 44 (2011) 193001, Eq. 3.19
+/// 
+/// # Parameters:
+/// * mu - chemical potential
+/// * t - tunneling
 pub fn get_m_row(spin_idx: &SpinIdx, mu: f64, t: f64,
                  dip: &DipolarSystem) -> RowDVector<f64> {
 
@@ -152,6 +157,11 @@ pub fn get_m_row(spin_idx: &SpinIdx, mu: f64, t: f64,
     mat_row
 }
 
+/// Generate Matrix M from Trefzger et al., J. Phys. B At. Mol. Opt. Phys. 44 (2011) 193001, Eq. 3.19
+/// 
+/// # Parameters:
+/// * mu - chemical potential
+/// * t - tunneling
 pub fn generate_mat_m(mu: f64, t: f64,
                       dip: &DipolarSystem) -> DMatrix<f64> {
 
@@ -168,4 +178,3 @@ pub fn generate_mat_m(mu: f64, t: f64,
 
     m_mat
 }
-
