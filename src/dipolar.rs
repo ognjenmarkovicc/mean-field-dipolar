@@ -46,6 +46,14 @@ impl DipolarSystem {
         let dd_mat = DMatrix::zeros(system_size, system_size);
         DipolarSystem { theta, phi, u_onsite, int_range, latt, occupation, dd_mat}
     }
+
+    pub fn update_occupation(&mut self, occupation: DMatrix<u8>) {
+        assert!(occupation.nrows() == self.latt.system_size, "occupation nrows != system_size");
+        
+        assert!(occupation.ncols() == self.latt.system_size, "occupation ncols != system_size");
+
+        self.occupation = occupation
+    }
 }
 
 /// Get the dipole dipole interaction
@@ -53,9 +61,7 @@ impl DipolarSystem {
 /// Assume that occupation is a latt.system_size x latt.system_size
 /// matrix.
 pub fn get_dd_int_site(x: isize, y: isize,
-                       dip: &DipolarSystem,
-                       occupation: &DMatrix<u8>,
-                       latt: &PeriodicLattice) -> f64 {
+                       dip: &DipolarSystem) -> f64 {
 
     let mut interaction: f64 = 0.;
     let int_range_cast = isize::try_from(dip.int_range).unwrap();
@@ -64,8 +70,8 @@ pub fn get_dd_int_site(x: isize, y: isize,
     for x_n in x-int_range_cast..x+int_range_cast + 1 {
         for y_n in y-int_range_cast..y+int_range_cast + 1 {
             // get periodic indices
-            let x_n_p = latt.get_idx_periodic(x_n);
-            let y_n_p = latt.get_idx_periodic(y_n);
+            let x_n_p = dip.latt.get_idx_periodic(x_n);
+            let y_n_p = dip.latt.get_idx_periodic(y_n);
 
             let dist_vec =  Vector3::new(x as f64-x_n as f64,
                                          y as f64 -y_n as f64,
@@ -74,7 +80,7 @@ pub fn get_dd_int_site(x: isize, y: isize,
             let dist = dist_vec.norm();
 
             if !(x_n_p == x as usize && y_n_p == y as usize) && dist<=dip.int_range as f64 {
-                interaction += occupation[(y_n_p, x_n_p)] as f64 * get_dd_int(dist_vec, dip.get_dipole_vec());
+                interaction += dip.occupation[(y_n_p, x_n_p)] as f64 * get_dd_int(dist_vec, dip.get_dipole_vec());
             }
         }
     }
@@ -85,55 +91,46 @@ pub fn get_dd_int_site(x: isize, y: isize,
 // Generate the d-d interaction matrix
 /// Assume that occupation is a latt.system_size x latt.system_size
 /// matrix.
-pub fn generate_dd_int_mat(dip: &DipolarSystem,
-                           occupation: &DMatrix<u8>,
-                           latt: &PeriodicLattice) -> DMatrix<f64> {
+pub fn generate_dd_int_mat(dip: &mut DipolarSystem) {
 
+    let l = dip.latt.system_size;
     let mut dd_mat: DMatrix<f64> 
-        = DMatrix::zeros(latt.system_size, latt.system_size);
-    for x in 0..latt.system_size {
-        for y in 0..latt.system_size {
+        = DMatrix::zeros(l, l);
+    for x in 0..l {
+        for y in 0..l {
             // x, y guarnateed to be isize as
-            // latt.system_size is < isize::MAX
-            dd_mat[(y, x)] = get_dd_int_site(x as isize, y as isize, dip, occupation, latt);
+            // l is < isize::MAX
+            dd_mat[(y, x)] = get_dd_int_site(x as isize, y as isize, dip);
         }
     }
 
-    dd_mat
+    dip.dd_mat = dd_mat;
 }
 
-pub fn get_particle_e(x: usize, y: usize, mu: f64, dip: &DipolarSystem,
-                      occupation: &DMatrix<u8>,
-                      dd_mat: &DMatrix<f64>) -> f64 {
-    -mu + dip.u_onsite*(occupation[(y, x)] as f64) + dd_mat[(y, x)]
+pub fn get_particle_e(x: usize, y: usize, mu: f64, dip: &DipolarSystem) -> f64 {
+    -mu + dip.u_onsite*(dip.occupation[(y, x)] as f64) + dip.dd_mat[(y, x)]
 }
 
-pub fn get_hole_e(x: usize, y: usize, mu: f64, dip: &DipolarSystem,
-    occupation: &DMatrix<u8>,
-    dd_mat: &DMatrix<f64>) -> f64 { 
-    mu - dip.u_onsite*(occupation[(y, x)] as f64 - 1.) - dd_mat[(y, x)]
+pub fn get_hole_e(x: usize, y: usize, mu: f64, dip: &DipolarSystem) -> f64 { 
+    mu - dip.u_onsite*(dip.occupation[(y, x)] as f64 - 1.) - dip.dd_mat[(y, x)]
 }
 
 pub fn get_m_row(spin_idx: &SpinIdx, mu: f64, t: f64,
-                 dip: &DipolarSystem,
-                 occupation: &DMatrix<u8>,
-                 latt: &PeriodicLattice,
-                 dd_mat: &DMatrix<f64>) -> RowDVector<f64> {
+                 dip: &DipolarSystem) -> RowDVector<f64> {
 
+    let latt = &dip.latt;
     let mut mat_row: RowDVector<f64>
         = RowDVector::zeros(latt.system_size*latt.system_size);
     mat_row[spin_idx.idx] = 1.;
 
     let latt_pos = LattPos::from(spin_idx);
-    let n = occupation[(latt_pos.y, latt_pos.x)] as f64;
+    let n = dip.occupation[(latt_pos.y, latt_pos.x)] as f64;
 
     let x = latt_pos.x as isize;
     let y = latt_pos.y as isize;
 
-    let particle_e = get_particle_e(latt_pos.x, latt_pos.y,
-                                    mu, dip, occupation, dd_mat);
-    let hole_e = get_hole_e(latt_pos.x, latt_pos.y,
-                            mu, dip, occupation, dd_mat);
+    let particle_e = get_particle_e(latt_pos.x, latt_pos.y, mu, dip);
+    let hole_e = get_hole_e(latt_pos.x, latt_pos.y, mu, dip);
 
     let row_val = if particle_e==0. || hole_e==0. {
         f64::INFINITY
@@ -156,18 +153,15 @@ pub fn get_m_row(spin_idx: &SpinIdx, mu: f64, t: f64,
 }
 
 pub fn generate_mat_m(mu: f64, t: f64,
-                      dip: &DipolarSystem,
-                      occupation: &DMatrix<u8>,
-                      latt: &PeriodicLattice,
-                      dd_mat: &DMatrix<f64>) -> DMatrix<f64> {
+                      dip: &DipolarSystem) -> DMatrix<f64> {
 
+    let latt = &dip.latt;
     let mut m_mat = DMatrix::zeros(latt.system_size.pow(2),
                                    latt.system_size.pow(2));
 
     for spin_idx in 0..latt.system_size.pow(2) {
 
-        let mat_row = get_m_row(&SpinIdx::new(spin_idx, latt), mu, t,
-                                dip, occupation, latt, dd_mat);
+        let mat_row = get_m_row(&SpinIdx::new(spin_idx, latt), mu, t, dip);
 
         m_mat.set_row(spin_idx, &mat_row);
     }

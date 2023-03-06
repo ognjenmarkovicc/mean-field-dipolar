@@ -29,21 +29,20 @@ fn main() {
 
     println!("{:?}", mat);
 
-    let dip_system = DipolarSystem::new(0., 0., 20., 1, 4);
+    let mut dip_system = DipolarSystem::new(0., 0., 20., 1, 4);
+    dip_system.update_occupation(mat);
 
-    let interaction = get_dd_int_site(0, 0, &dip_system,
-                                      &mat, &system);
+    let interaction = get_dd_int_site(0, 0, &dip_system);
 
     println!("Interaction {}", interaction);
 
-    let dd_mat = generate_dd_int_mat(&dip_system, &mat, &system);
+    generate_dd_int_mat(&mut dip_system);
 
-    println!("{:?}", dd_mat);
+    println!("{:?}", dip_system.dd_mat);
 
     let t = 1.;
     let mu = 1.;
-    let m_mat = generate_mat_m(mu, t, &dip_system, &mat,
-                               &system, &dd_mat);
+    let m_mat = generate_mat_m(mu, t, &dip_system);
 
     println!("{:?}", m_mat);
 }

@@ -90,30 +90,25 @@ mod tests {
 
     #[test]
     fn dipole_int_test() {
-        let dip_system = DipolarSystem::new(0., 0., 0., 1, 4);
+        let mut dip_system = DipolarSystem::new(0., 0., 0., 1, 4);
 
-        let system = PeriodicLattice::new(4);
-        let occupation = get_checkerboard(&system);
+        dip_system.update_occupation(get_checkerboard(&dip_system.latt));
 
-        let interaction = get_dd_int_site(0, 0, &dip_system,
-                                          &occupation, &system);
+        let interaction = get_dd_int_site(0, 0, &dip_system);
         assert_eq!(interaction, 4.);  
     }
 
     #[test]
     fn m_matrix_det_test() {
-        let dip_system = DipolarSystem::new(0., 0., 20., 1, 4);
+        let mut dip_system = DipolarSystem::new(0., 0., 20., 1, 2);
 
+        dip_system.update_occupation(get_checkerboard(&dip_system.latt));
 
-        let system = PeriodicLattice::new(2);
-        let occupation = get_checkerboard(&system);
-
-        let dd_mat = generate_dd_int_mat(&dip_system, &occupation, &system);
+        generate_dd_int_mat(&mut dip_system);
         
         let t = 1.;
         let mu = 1.;
-        let m_mat = generate_mat_m(mu, t, &dip_system, &occupation,
-                                   &system, &dd_mat);
+        let m_mat = generate_mat_m(mu, t, &dip_system);
         
         // value taken from the python version of the
         assert_eq!(m_mat.determinant(), -0.4736842105263155);
