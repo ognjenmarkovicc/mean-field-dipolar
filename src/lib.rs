@@ -1,8 +1,7 @@
 #[macro_use]
-extern crate approx; // For the macro relative_eq!
+extern crate approx; // For the macro assert_relative_eq!
 extern crate nalgebra as na;
 use na::Vector3;
-use core::panic;
 use std::f64::consts::PI;
 
 pub mod lattice;
@@ -25,7 +24,7 @@ mod tests {
 
         let int = get_dd_int(dist_v, dip_v);
 
-        relative_eq!(int, 1.);
+        assert_relative_eq!(int, 1.);
     }
 
 
@@ -36,7 +35,7 @@ mod tests {
 
         let int = get_dd_int(dist_v, dip_v);
 
-        relative_eq!(int, -2.);
+        assert_relative_eq!(int, -2.);
     }
 
     #[test]
@@ -85,7 +84,7 @@ mod tests {
 
         let dip_vec = dip_system.get_dipole_vec();
 
-        relative_eq!(dip_vec[0], 1.);
+        assert_relative_eq!(dip_vec[0], 1.);
     }
 
     #[test]
@@ -95,7 +94,7 @@ mod tests {
         dip_system.update_occupation(get_checkerboard(&dip_system.latt));
 
         let interaction = get_dd_int_site(0, 0, &dip_system);
-        assert_eq!(interaction, 4.);  
+        assert_relative_eq!(interaction, 4.);  
     }
 
     #[test]
@@ -110,7 +109,8 @@ mod tests {
         let mu = 1.;
         let m_mat = generate_mat_m(mu, t, &dip_system);
         
-        // value taken from the python version of the
-        assert_eq!(m_mat.determinant(), -0.4736842105263155);
+        // value taken from the python version of the code
+        assert_relative_eq!(m_mat.determinant(), -0.4736842105263155);
+    }
     }
 }

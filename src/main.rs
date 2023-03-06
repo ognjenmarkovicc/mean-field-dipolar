@@ -1,5 +1,5 @@
 extern crate nalgebra as na;
-use approx::relative_eq;
+use approx::assert_relative_eq;
 use na::{Vector3};
 
 use mean_field_dipolar::lattice::{PeriodicLattice,
