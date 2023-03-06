@@ -63,3 +63,22 @@ pub fn get_dd_int_site(x: isize, y: isize,
 
     interaction
 }
+
+// Generate the d-d interaction matrix
+pub fn generate_dd_int_mat(dip: &DipolarSystem,
+                           occupation: &DMatrix<u8>,
+                           latt: &PeriodicLattice) -> DMatrix<f64> {
+
+    let mut dd_mat: DMatrix<f64> 
+        = DMatrix::zeros(latt.system_size, latt.system_size);
+    for x in 0..latt.system_size {
+        for y in 0..latt.system_size {
+            // x, y guarnateed to be isize as
+            // latt.system_size is < isize::MAX
+            dd_mat[(y, x)] = get_dd_int_site(x as isize, y as isize, dip, occupation, latt);
+        }
+    }
+
+    dd_mat
+}
+    
