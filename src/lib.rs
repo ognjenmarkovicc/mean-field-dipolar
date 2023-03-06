@@ -11,7 +11,8 @@ pub mod patterns;
 
 #[cfg(test)]
 mod tests {
-    use crate::{patterns::get_checkerboard, dipolar::get_dd_int_site};
+    use crate::{patterns::get_checkerboard,
+                dipolar::{get_dd_int_site, generate_mat_m, generate_dd_int_mat}};
 
     use super::*;
     use dipolar::{get_dd_int, DipolarSystem};
@@ -95,5 +96,24 @@ mod tests {
         let interaction = get_dd_int_site(0, 0, &dip_system,
                                           &occupation, &system);
         assert_eq!(interaction, 4.);  
+    }
+
+    #[test]
+    fn m_matrix_det_test() {
+        let dip_system = DipolarSystem {theta: 0., phi: 0.,
+                                        u_onsite: 20., int_range: 1};
+
+        let system = PeriodicLattice::new(2);
+        let occupation = get_checkerboard(&system);
+
+        let dd_mat = generate_dd_int_mat(&dip_system, &occupation, &system);
+        
+        let t = 1.;
+        let mu = 1.;
+        let m_mat = generate_mat_m(mu, t, &dip_system, &occupation,
+                                   &system, &dd_mat);
+        
+        // value taken from the python version of the code
+        assert_eq!(m_mat.determinant(), -0.4736842105263155);
     }
 }

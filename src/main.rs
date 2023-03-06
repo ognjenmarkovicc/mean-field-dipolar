@@ -4,7 +4,7 @@ use na::{Vector3};
 
 use mean_field_dipolar::lattice::{PeriodicLattice,
     SpinIdx, LattPos};
-use mean_field_dipolar::dipolar::{DipolarSystem, get_dd_int, get_dd_int_site, generate_dd_int_mat};
+use mean_field_dipolar::dipolar::{DipolarSystem, get_dd_int, get_dd_int_site, generate_dd_int_mat, generate_mat_m};
 use mean_field_dipolar::patterns::get_checkerboard;
 
 fn main() {
@@ -15,11 +15,11 @@ fn main() {
 
     println!("d-d interaction {}", interaction);
 
-    let system = PeriodicLattice::new(4);
-    let idx = 5;
+    let system = PeriodicLattice::new(2);
+    let idx = 1;
     assert_eq!(1, system.get_idx_periodic(idx));
 
-    let sp = SpinIdx::new(5, &system);
+    let sp = SpinIdx::new(1, &system);
 
     let pos = LattPos::from(sp);
 
@@ -30,7 +30,7 @@ fn main() {
     println!("{:?}", mat);
 
     let dip_system = DipolarSystem {theta: 0., phi: 0.,
-                                    u_onsite: 0., int_range: 1};
+                                    u_onsite: 20., int_range: 1};
     let interaction = get_dd_int_site(0, 0, &dip_system,
                                       &mat, &system);
 
@@ -40,5 +40,10 @@ fn main() {
 
     println!("{:?}", dd_mat);
 
+    let t = 1.;
+    let mu = 1.;
+    let m_mat = generate_mat_m(mu, t, &dip_system, &mat,
+                               &system, &dd_mat);
 
+    println!("{:?}", m_mat);
 }
