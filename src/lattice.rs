@@ -87,6 +87,15 @@ impl <'a> From<SpinIdx<'a>> for LattPos<'a> {
     }
 }
 
+impl <'a> From<&SpinIdx<'a>> for LattPos<'a> {
+    /// Get a lattice position from a reference to a spin index
+    fn from(sp: &SpinIdx<'a>) -> LattPos<'a> {
+        LattPos { x: sp.idx%sp.latt.system_size,
+                  y: sp.idx/sp.latt.system_size,
+                  latt: sp.latt }
+    }
+}
+
 impl <'a> From<LattPos<'a>> for SpinIdx<'a> {
     /// Get a spin index from a position in the lattice
     fn from(pos: LattPos) -> SpinIdx {
