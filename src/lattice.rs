@@ -51,7 +51,7 @@ impl <'a> LattPos<'a> {
     /// Panics if the given lattice indices are not compatible with
     /// latt.system_size.
     pub fn new(x: usize, y: usize, latt: &PeriodicLattice) -> LattPos {
-        if x >= latt.system_size || y >= latt.system_size || x < 0 || y < 0 {
+        if x >= latt.system_size || y >= latt.system_size {
             panic!("Given indices not compatible with the given system size.");
         }
         LattPos { x: x, y: y, latt: latt }
@@ -71,7 +71,7 @@ impl <'a> SpinIdx<'a> {
     /// 
     /// Panics if the index is not compatible with the given lattice.
     pub fn new(idx: usize, latt: &PeriodicLattice) -> SpinIdx {
-        if idx >= latt.system_size.pow(2) || idx < 0 {
+        if idx >= latt.system_size.pow(2) {
             panic!("Index not compatible with the given system size");
         }
         SpinIdx {idx, latt}
