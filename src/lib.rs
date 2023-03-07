@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate approx; // For the macro assert_relative_eq!
 extern crate nalgebra as na;
-use na::Vector3;
-use std::f64::consts::PI;
 
 pub mod lattice;
 pub mod dipolar;
@@ -12,6 +10,9 @@ pub mod patterns;
 mod tests {
     use crate::{patterns::get_checkerboard,
                 dipolar::{get_dd_int_site, generate_mat_m, generate_dd_int_mat, get_tunneling, get_mu_inequality}};
+    use na::Vector3;
+    use std::f64::consts::PI;
+
 
     use super::*;
     use dipolar::{get_dd_int, DipolarSystem};

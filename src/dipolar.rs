@@ -1,5 +1,5 @@
 use na::{Vector3, DMatrix};
-use nalgebra::{RowDVector, DVector, ComplexField};
+use nalgebra::{RowDVector};
 
 use crate::lattice::{PeriodicLattice, SpinIdx, LattPos};
 

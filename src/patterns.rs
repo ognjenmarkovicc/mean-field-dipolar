@@ -1,4 +1,4 @@
-use na::{Vector3, DMatrix};
+use na::{DMatrix};
 use super::lattice::PeriodicLattice;
 
 pub fn get_checkerboard(latt: &PeriodicLattice) -> DMatrix<u8> {
