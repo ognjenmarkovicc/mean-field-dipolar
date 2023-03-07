@@ -11,7 +11,7 @@ pub mod patterns;
 #[cfg(test)]
 mod tests {
     use crate::{patterns::get_checkerboard,
-                dipolar::{get_dd_int_site, generate_mat_m, generate_dd_int_mat, get_tunneling}};
+                dipolar::{get_dd_int_site, generate_mat_m, generate_dd_int_mat, get_tunneling, get_mu_inequality}};
 
     use super::*;
     use dipolar::{get_dd_int, DipolarSystem};
@@ -125,5 +125,16 @@ mod tests {
         // value taken from the python version of the code
         assert_relative_eq!(tunneling, 0.8200000000000006);
 
+    }
+
+    #[test]
+    fn get_mu_inequality_test() {
+        let mut dip_system = DipolarSystem::new(0., 0., 20., 1, 2);
+        dip_system.update_occupation(get_checkerboard(&dip_system.latt));
+        generate_dd_int_mat(&mut dip_system);
+
+        let (lower, upper) = get_mu_inequality(&dip_system);
+        assert_relative_eq!(lower, 0.);
+        assert_relative_eq!(upper, 4.);
     }
 }

@@ -201,3 +201,15 @@ pub fn get_tunneling(mu: f64, dip: &DipolarSystem, max_tunneling: f64,
     // return 0 if determinant smaller than det_threshold not found
     0.
 }
+
+/// Get the range of mu values in which the 
+/// occupation is stable with the parameters
+/// given in dip
+pub fn get_mu_inequality(dip: &DipolarSystem) -> (f64, f64) {
+
+    let n_float = dip.occupation.clone().cast::<f64>();
+    let lower = dip.u_onsite*(n_float.add_scalar(-1.)) + &dip.dd_mat;
+    let upper = dip.u_onsite*n_float + &dip.dd_mat;
+
+    (lower.max(), upper.min())
+}
