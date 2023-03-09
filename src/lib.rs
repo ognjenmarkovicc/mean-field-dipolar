@@ -5,6 +5,7 @@ extern crate nalgebra as na;
 pub mod lattice;
 pub mod dipolar;
 pub mod patterns;
+pub mod result;
 
 #[cfg(test)]
 mod tests {

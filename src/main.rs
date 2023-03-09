@@ -2,6 +2,7 @@ extern crate nalgebra as na;
 extern crate serde_json;
 use mean_field_dipolar::dipolar::{DipolarSystem, get_dd_int_site, generate_dd_int_mat, generate_mat_m, get_mu_inequality, get_tunneling};
 use mean_field_dipolar::patterns::get_checkerboard;
+use mean_field_dipolar::result;
 use na::DVector;
 use std::fs;
 use std::path::Path;
@@ -27,21 +28,11 @@ fn main() {
                                                mu_vals.iter()
                                                       .map(|mu| get_tunneling(*mu, &dip_system,
                                                                               1.,  1e-3, 1e-2)));
-        // Convert tunnelings to a JSON.
-        let tunneling_json = serde_json::to_string(&tunneling).unwrap();         
 
-        // Convert mus to a JSON.
-        let mu_json = serde_json::to_string(&mu_vals).unwrap();                                         
-
-        match fs::write(save_path.join("tunneling.json"), tunneling_json) {
-            Ok(_) => (),
-            Err(s) => println!("Error writing to file: {s}"),
-        }   
-
-        match fs::write(save_path.join("mu.json"), mu_json) {
-            Ok(_) => (),
-            Err(s) => println!("Error writing to file: {s}"),
-        }  
+        result::save_vector_json(save_path.join("tunneling.json")
+                                 , tunneling);
+        result::save_vector_json(save_path.join("mu.json")
+                                 , mu_vals);
 
     }
 
