@@ -6,11 +6,13 @@ pub mod lattice;
 pub mod dipolar;
 pub mod patterns;
 pub mod result;
+pub mod util;
 
 #[cfg(test)]
 mod tests {
     use crate::{patterns::get_checkerboard,
-                dipolar::{get_dd_int_site, generate_mat_m, generate_dd_int_mat, get_tunneling, get_mu_inequality}};
+                dipolar::{get_dd_int_site, generate_mat_m, generate_dd_int_mat, get_tunneling, get_mu_inequality},
+                util::linspace};
     use na::Vector3;
     use std::f64::consts::PI;
 
@@ -138,5 +140,18 @@ mod tests {
         let (lower, upper) = get_mu_inequality(&dip_system);
         assert_relative_eq!(lower, 0.);
         assert_relative_eq!(upper, 4.);
+    }
+
+    #[test]
+    fn linspace_test() {
+        let arr = linspace(0., 1., 2, false);
+
+        assert_relative_eq!(arr[0], 0.);
+        assert_relative_eq!(arr[1], 0.5);
+
+        let arr = linspace(0., 1., 2, true);
+
+        assert_relative_eq!(arr[0], 0.);
+        assert_relative_eq!(arr[1], 1.);
     }
 }

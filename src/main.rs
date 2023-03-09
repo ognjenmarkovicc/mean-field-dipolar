@@ -3,8 +3,8 @@ extern crate serde_json;
 use mean_field_dipolar::dipolar::{DipolarSystem, get_dd_int_site, generate_dd_int_mat, generate_mat_m, get_mu_inequality, get_tunneling};
 use mean_field_dipolar::patterns::get_checkerboard;
 use mean_field_dipolar::result;
+use mean_field_dipolar::util::linspace;
 use na::DVector;
-use std::fs;
 use std::path::Path;
 
 
@@ -20,9 +20,8 @@ fn main() {
     println!("Lower mu {:.2} upper mu {:.2}", lower, upper);
 
     if lower < upper {
-        let no_points = 10;
-        let delta_mu = (upper - lower)/(no_points as f64);
-        let mu_vals = DVector::from_iterator(no_points, (0..no_points).map(|idx| (idx as f64)*delta_mu + lower));
+        let no_points = 100;
+        let mu_vals = linspace(lower, upper, no_points, true);
 
         let tunneling = DVector::from_iterator(no_points, 
                                                mu_vals.iter()
