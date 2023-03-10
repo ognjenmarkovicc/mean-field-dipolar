@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate serde_json;
 use mean_field_dipolar::dipolar::{DipolarSystem, get_dd_int_site, generate_dd_int_mat, generate_mat_m, get_mu_inequality, get_tunneling};
-use mean_field_dipolar::patterns::get_checkerboard;
+use mean_field_dipolar::lattice::get_checkerboard;
 use mean_field_dipolar::result;
 use mean_field_dipolar::util::linspace;
 use na::DVector;

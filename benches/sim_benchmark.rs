@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use mean_field_dipolar::dipolar::{DipolarSystem, generate_dd_int_mat, generate_mat_m};
-use mean_field_dipolar::patterns::get_checkerboard;
+use mean_field_dipolar::lattice::get_checkerboard;
 
 pub fn mmat_det_benchmark_fn(system_size: usize) {
     let mut dip_system = DipolarSystem::new(0., 0., 20., 1, system_size);

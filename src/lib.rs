@@ -4,13 +4,12 @@ extern crate nalgebra as na;
 
 pub mod lattice;
 pub mod dipolar;
-pub mod patterns;
 pub mod result;
 pub mod util;
 
 #[cfg(test)]
 mod tests {
-    use crate::{patterns::get_checkerboard,
+    use crate::{lattice::get_checkerboard,
                 dipolar::{get_dd_int_site, generate_mat_m, generate_dd_int_mat, get_tunneling, get_mu_inequality},
                 util::linspace};
     use na::Vector3;
