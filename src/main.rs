@@ -12,27 +12,31 @@ fn main() {
     // save path
     let save_path = Path::new("./");
 
-    let mut dip_system = DipolarSystem::new(0., 0., 20., 1, 4);
-    dip_system.update_occupation(get_checkerboard(&dip_system.latt));
-    generate_dd_int_mat(&mut dip_system);
-    let (lower, upper) = get_mu_inequality(&dip_system);
+    for int_range in (1..8).step_by(1) {
+        let system_size = 16;
+        println!("Running int range {}", int_range);
 
-    println!("Lower mu {:.2} upper mu {:.2}", lower, upper);
+        let mut dip_system = DipolarSystem::new(0., 0., 20., int_range, system_size);
+        dip_system.update_occupation(get_checkerboard(&dip_system.latt));
+        generate_dd_int_mat(&mut dip_system);
+        let (lower, upper) = get_mu_inequality(&dip_system);
 
-    if lower < upper {
-        let no_points = 100;
-        let mu_vals = linspace(lower, upper, no_points, true);
+        println!("Lower mu {:.2} upper mu {:.2}", lower, upper);
 
-        let tunneling = DVector::from_iterator(no_points, 
-                                               mu_vals.iter()
-                                                      .map(|mu| get_tunneling(*mu, &dip_system,
-                                                                              1.,  1e-3, 1e-2)));
+            if lower < upper {
+                let no_points = 100;
+                let mu_vals = linspace(lower, upper, no_points, true);
 
-        result::save_vector_json(save_path.join("tunneling.json")
-                                 , tunneling);
-        result::save_vector_json(save_path.join("mu.json")
-                                 , mu_vals);
+                let tunneling = DVector::from_iterator(no_points, 
+                                                    mu_vals.iter()
+                                                            .map(|mu| get_tunneling(*mu, &dip_system,
+                                                                                    1.,  1e-3, 1e-2)));
 
+                result::save_vector_json(save_path.join(format!("tunneling_{system_size}_range_{int_range}.json"))
+                                        , tunneling);
+                result::save_vector_json(save_path.join(format!("mu_{system_size}_range_{int_range}.json"))
+                                        , mu_vals);
+            }
     }
 
 }
