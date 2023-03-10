@@ -1,4 +1,7 @@
-use na::{DVector};
+use na::{DVector, Scalar};
+use std::fs;
+use std::path::Path;
+use serde::ser;
 
 /// Basic linspace function
 /// 
@@ -15,4 +18,18 @@ pub fn linspace(start: f64, stop: f64, num: usize, endpoint: bool) -> DVector<f6
 
     let delta = (stop - start)/(denom as f64);
     DVector::from_iterator(num, (0..num).map(|idx| (idx as f64)*delta + start))
+}
+
+/// Save a DVector<T> into a json file
+pub fn save_vector_json<T, P>(filename: P, values: DVector<T>)
+where P: AsRef<Path>, 
+      T: Scalar + ser::Serialize,
+{
+    // Convert the vector to a JSON string
+    let json_string = serde_json::to_string(&values).unwrap();                                         
+
+    match fs::write(filename, json_string) {
+        Ok(_) => (),
+        Err(s) => println!("Error writing to file: {s}"),
+    }   
 }

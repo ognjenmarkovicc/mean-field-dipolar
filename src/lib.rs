@@ -4,7 +4,6 @@ extern crate nalgebra as na;
 
 pub mod lattice;
 pub mod dipolar;
-pub mod result;
 pub mod util;
 
 #[cfg(test)]
