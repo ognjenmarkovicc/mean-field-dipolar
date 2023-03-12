@@ -3,7 +3,7 @@ use std::{path::{Path, PathBuf}};
 use na::{Vector3, DMatrix};
 use nalgebra::{RowDVector, DVector};
 
-use crate::lattice::{PeriodicLattice, SpinIdx, LattPos, get_checkerboard};
+use crate::lattice::{PeriodicLattice, SpinIdx, LattPos, get_checkerboard, get_filled, get_horizontal_stripe};
 use crate::util;
 
 /// Get the dipole-dipole interaction
@@ -217,16 +217,33 @@ pub fn get_mu_inequality(dip: &DipolarSystem) -> (f64, f64) {
     (lower.max(), upper.min())
 }
 
-pub fn simulation_sweep<P: AsRef<Path>>(save_path: P, int_ranges: (usize, usize), 
-                        system_sizes: (usize, usize), theta: f64, phi: f64,
-                        u_onsite: f64) {
+#[non_exhaustive]
+#[derive(Debug)]
+pub enum Pattern {
+    Filled,
+    CB,
+    HStripe,
+}
+
+pub fn simulation_sweep<P: AsRef<Path>>(save_path: P, patt: &Pattern,
+                                        int_ranges: (usize, usize), 
+                                        system_sizes: (usize, usize), theta: f64, phi: f64,
+                                        u_onsite: f64) {
 
     for int_range in (int_ranges.0..int_ranges.1).step_by(1) {
         for system_size in (system_sizes.0..system_sizes.1).step_by(2) {
             println!("Running int range {}, system size {}", int_range, system_size);
 
             let mut dip_system = DipolarSystem::new(theta, phi, u_onsite, int_range, system_size);
-            dip_system.update_occupation(get_checkerboard(&dip_system.latt));
+
+            let occupation = match patt {
+                Pattern::Filled => get_filled(&dip_system.latt),
+                Pattern::CB => get_checkerboard(&dip_system.latt),
+                Pattern::HStripe => get_horizontal_stripe(&dip_system.latt),
+            };
+
+            dip_system.update_occupation(occupation);
+
             generate_dd_int_mat(&mut dip_system);
             let (lower, upper) = get_mu_inequality(&dip_system);
 
