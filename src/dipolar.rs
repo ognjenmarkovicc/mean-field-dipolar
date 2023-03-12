@@ -1,7 +1,10 @@
-use na::{Vector3, DMatrix};
-use nalgebra::{RowDVector};
+use std::{path::{Path, PathBuf}};
 
-use crate::lattice::{PeriodicLattice, SpinIdx, LattPos};
+use na::{Vector3, DMatrix};
+use nalgebra::{RowDVector, DVector};
+
+use crate::lattice::{PeriodicLattice, SpinIdx, LattPos, get_checkerboard};
+use crate::util;
 
 /// Get the dipole-dipole interaction
 /// 
@@ -212,4 +215,39 @@ pub fn get_mu_inequality(dip: &DipolarSystem) -> (f64, f64) {
     let upper = dip.u_onsite*n_float + &dip.dd_mat;
 
     (lower.max(), upper.min())
+}
+
+pub fn simulation_sweep<P: AsRef<Path>>(save_path: P, int_ranges: (usize, usize), 
+                        system_sizes: (usize, usize), theta: f64, phi: f64,
+                        u_onsite: f64) {
+
+    for int_range in (int_ranges.0..int_ranges.1).step_by(1) {
+        for system_size in (system_sizes.0..system_sizes.1).step_by(2) {
+            println!("Running int range {}, system size {}", int_range, system_size);
+
+            let mut dip_system = DipolarSystem::new(theta, phi, u_onsite, int_range, system_size);
+            dip_system.update_occupation(get_checkerboard(&dip_system.latt));
+            generate_dd_int_mat(&mut dip_system);
+            let (lower, upper) = get_mu_inequality(&dip_system);
+
+            println!("Lower mu {:.2} upper mu {:.2}", lower, upper);
+
+                if lower < upper {
+                    let no_points = 100;
+                    let mu_vals = util::linspace(lower, upper, no_points, true);
+
+                    let tunneling = DVector::from_iterator(no_points, 
+                                                        mu_vals.iter()
+                                                                .map(|mu| get_tunneling(*mu, &dip_system,
+                                                                                        4.,  1e-3, 1e-2)));
+    
+                    util::save_vector_json(save_path.as_ref()
+                                                    .join(format!("tunneling_{system_size}_range_{int_range}.json"))
+                                            , tunneling);
+                    util::save_vector_json(save_path.as_ref()
+                                                    .join(format!("mu_{system_size}_range_{int_range}.json"))
+                                           , mu_vals);
+            }
+        }
+    }
 }
