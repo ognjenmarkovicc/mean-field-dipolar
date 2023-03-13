@@ -123,13 +123,10 @@ pub fn get_hole_e(x: usize, y: usize, mu: f64, dip: &DipolarSystem) -> f64 {
 /// # Parameters:
 /// * mu - chemical potential
 /// * t - tunneling
-pub fn get_m_row(spin_idx: &SpinIdx, mu: f64, t: f64,
-                 dip: &DipolarSystem) -> RowDVector<f64> {
+pub fn set_m_row(m_mat: &mut DMatrix<f64>, spin_idx: &SpinIdx, mu: f64, t: f64,
+                 dip: &DipolarSystem){
 
     let latt = &dip.latt;
-    let mut mat_row: RowDVector<f64>
-        = RowDVector::zeros(latt.system_size*latt.system_size);
-    mat_row[spin_idx.idx] = 1.;
 
     let latt_pos = LattPos::from(spin_idx);
     let n = dip.occupation[(latt_pos.y, latt_pos.x)] as f64;
@@ -154,10 +151,8 @@ pub fn get_m_row(spin_idx: &SpinIdx, mu: f64, t: f64,
 
         // get the spin index of the neighbor
         let spin_idx_n = SpinIdx::from(LattPos::new(x_n_p, y_n_p, &latt)); 
-        mat_row[spin_idx_n.idx] = row_val
+        m_mat[(spin_idx.idx, spin_idx_n.idx)] = row_val
     }
-
-    mat_row
 }
 
 /// Generate Matrix M from Trefzger et al., J. Phys. B At. Mol. Opt. Phys. 44 (2011) 193001, Eq. 3.19
@@ -169,14 +164,13 @@ pub fn generate_mat_m(mu: f64, t: f64,
                       dip: &DipolarSystem) -> DMatrix<f64> {
 
     let latt = &dip.latt;
-    let mut m_mat = DMatrix::zeros(latt.system_size.pow(2),
-                                   latt.system_size.pow(2));
+
+    // diagonal elements are always 1.
+    let mut m_mat = DMatrix::from_diagonal_element(latt.system_size.pow(2),
+                                                   latt.system_size.pow(2), 1.);
 
     for spin_idx in 0..latt.system_size.pow(2) {
-
-        let mat_row = get_m_row(&SpinIdx::new(spin_idx, latt), mu, t, dip);
-
-        m_mat.set_row(spin_idx, &mat_row);
+        set_m_row(&mut m_mat, &SpinIdx::new(spin_idx, latt), mu, t, dip);
     }
 
     m_mat
