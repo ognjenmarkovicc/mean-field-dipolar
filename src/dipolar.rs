@@ -1,4 +1,4 @@
-use std::{path::{Path, PathBuf}};
+use std::{path::{Path, PathBuf}, time::Instant};
 
 use na::{Vector3, DMatrix};
 use nalgebra::{RowDVector, DVector};
@@ -223,6 +223,7 @@ pub fn simulation_sweep<P: AsRef<Path>>(save_path: P, patt: &Pattern,
                                         int_ranges: (usize, usize), 
                                         system_sizes: (usize, usize), theta: f64, phi: f64,
                                         u_onsite: f64) {
+    let start = Instant::now();
 
     for int_range in (int_ranges.0..int_ranges.1).step_by(1) {
         for system_size in (system_sizes.0..system_sizes.1).step_by(2) {
@@ -260,5 +261,8 @@ pub fn simulation_sweep<P: AsRef<Path>>(save_path: P, patt: &Pattern,
                                            , mu_vals);
             }
         }
+        let duration = start.elapsed();
+
+        println!("Simulation sweep took: {:.4} s", duration.as_secs_f64());
     }
 }
