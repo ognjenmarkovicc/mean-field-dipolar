@@ -5,12 +5,29 @@ extern crate toml;
 use mean_field_dipolar::dipolar::{simulation_sweep};
 use mean_field_dipolar::util;
 use std::f64::consts::PI;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::fs;
+use clap::{Parser};
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    /// Simulation results path
+    #[arg(short, long, value_name = "FILE")]
+    respath: Option<PathBuf>,
+}
 
 fn main() {
+    let cli = Cli::parse();
+
     // save path
-    let save_path = Path::new("./");
+    let save_path = match cli.respath.as_deref() {
+        Some(path) => Path::new(path),
+        None => Path::new("./")
+    };
+    println!("Selected results save path: {save_path:?}");
+
+    // config file path
     let config_path = Path::new("./sim.toml");
 
     // read the config
