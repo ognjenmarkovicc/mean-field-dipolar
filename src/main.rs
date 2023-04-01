@@ -31,14 +31,7 @@ fn main() {
     let config: Config = toml::from_str(config_str.as_ref())
         .expect("Failed reading config file");
 
-    let patt = match config.pattern.to_lowercase().as_ref() {
-        "filled" => Pattern::Filled,
-        "cb" => Pattern::CB,
-        "hstripe" => Pattern::HStripe,
-        _ => Pattern::Filled
-    };
-
-    println!("Selected pattern {:?}", patt);
+    let patt = util::parse_pattern_str(config.pattern);
 
     simulation_sweep(save_path, &patt, (1, 2), (4, 6), PI/2., 0., 20.);
 }

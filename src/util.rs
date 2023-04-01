@@ -2,6 +2,7 @@ use na::{DVector, Scalar};
 use std::fs;
 use std::path::Path;
 use serde::ser;
+use super::dipolar::Pattern;
 
 /// Basic linspace function
 /// 
@@ -32,4 +33,15 @@ where P: AsRef<Path>,
         Ok(_) => (),
         Err(s) => println!("Error writing to file: {s}"),
     }   
+}
+
+/// Parse pattern from a config string
+pub fn parse_pattern_str(pattern_str: String) -> Pattern {
+    let patt = match pattern_str.to_lowercase().as_ref() {
+        "filled" => Pattern::Filled,
+        "cb" => Pattern::CB,
+        "hstripe" => Pattern::HStripe,
+        _ => Pattern::Filled
+    };
+    patt
 }
