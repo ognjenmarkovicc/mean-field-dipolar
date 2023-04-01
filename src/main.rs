@@ -2,13 +2,10 @@ extern crate nalgebra as na;
 extern crate serde_json;
 extern crate toml;
 
-use mean_field_dipolar::dipolar::{simulation_sweep, Pattern};
-use mean_field_dipolar::lattice::get_checkerboard;
+use mean_field_dipolar::dipolar::{simulation_sweep};
 use mean_field_dipolar::util;
-use na::DVector;
 use std::f64::consts::PI;
 use std::path::Path;
-use std::time::Instant;
 use std::fs;
 
 fn main() {

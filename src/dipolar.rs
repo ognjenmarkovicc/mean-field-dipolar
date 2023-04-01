@@ -1,7 +1,7 @@
-use std::{path::{Path, PathBuf}, time::Instant};
+use std::{path::Path, time::Instant};
 
 use na::{Vector3, DMatrix};
-use nalgebra::{RowDVector, DVector};
+use nalgebra::{DVector};
 
 use crate::lattice::{PeriodicLattice, SpinIdx, LattPos, get_checkerboard, get_filled, get_horizontal_stripe};
 use crate::util;
