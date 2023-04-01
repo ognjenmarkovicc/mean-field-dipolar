@@ -2,6 +2,7 @@ use na::{DVector, Scalar};
 use std::fs;
 use std::path::Path;
 use serde::ser;
+use serde::Deserialize;
 use super::dipolar::Pattern;
 
 /// Basic linspace function
@@ -44,4 +45,25 @@ pub fn parse_pattern_str(pattern_str: String) -> Pattern {
         _ => Pattern::Filled
     };
     patt
+}
+
+/// Pattern struct
+#[derive(Deserialize)]
+pub struct Config {
+   /// pattern to simulate
+   pub pattern: String,
+   /// interaction range start
+   pub range_start: usize,
+   /// interaction range end
+   pub range_end: usize,
+   /// size start
+   pub size_start: usize,
+   /// size end
+   pub size_end: usize,
+   /// theta (in fraction of PI)
+   pub theta: f64,
+   /// phi (in fraction of PI)
+   pub phi: f64, 
+   /// onsite interaction
+   pub u_onsite: f64,
 }
