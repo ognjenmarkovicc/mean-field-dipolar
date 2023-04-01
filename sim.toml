@@ -1,1 +1,8 @@
 pattern = "cb"
+range_start = 1
+range_end = 1
+size_start = 4
+size_end = 6
+theta = 0.0
+phi = 0.0
+u_onsite = 20.0

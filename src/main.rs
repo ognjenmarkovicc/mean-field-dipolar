@@ -17,6 +17,20 @@ use serde::Deserialize;
 struct Config {
     /// pattern to simulate
    pattern: String,
+   /// interaction range start
+   range_start: usize,
+   /// interaction range end
+   range_end: usize,
+   /// size start
+   size_start: usize,
+   /// size end
+   size_end: usize,
+   /// theta (in fraction of PI)
+   theta: f64,
+   /// phi (in fraction of PI)
+   phi: f64, 
+   /// onsite interaction
+   u_onsite: f64,
 }
 
 fn main() {
@@ -33,5 +47,9 @@ fn main() {
 
     let patt = util::parse_pattern_str(config.pattern);
 
-    simulation_sweep(save_path, &patt, (1, 2), (4, 6), PI/2., 0., 20.);
+    simulation_sweep(save_path, &patt, 
+                     (config.range_start, config.range_end+1),
+                     (config.size_start, config.size_end+1),
+                     config.theta*PI,
+                     config.phi*PI, config.u_onsite);
 }
